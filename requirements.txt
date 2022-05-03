@@ -1,0 +1,10 @@
+pdfminer.six
+pdf2image
+pytest
+flake8
+Pillow
+Django
+django-cors-headers
+djangorestframework
+djangorestframework-jwt
+djangorestframework-simplejwt

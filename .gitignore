@@ -1,0 +1,6 @@
+.python-version
+__pycache__
+PFE/*
+.vscode
+images/*
+!.gitkeep
