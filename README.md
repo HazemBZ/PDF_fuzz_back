@@ -1,5 +1,5 @@
 ## How this works?
-This part is the backend written with Django, and it interacts with a web Frontend written with React that will be linked down 
+This part is the backend written with Django, and it interacts with a web Frontend written with React that will be linked down bellow
 
 #### Step1
 Select files that you want to fuzz for keywords, tap keyword in search bar then click search button
