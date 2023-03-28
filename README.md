@@ -1,8 +1,10 @@
 ## How this works?
 This part is the backend written with Django, and it interacts with a web Frontend written with React that will be linked down bellow
 
+#### Step0
+Drop your pdf files inside `assets` folder
 #### Step1
-Select files that you want to fuzz for keywords, tap keyword in search bar then click search button
+Select files that you want to fuzz for keywords. Tap your keyword in the search bar, then click the search button
 
 <p align="center" >
     <img src="images/guide/step1.png" width="600"/>
