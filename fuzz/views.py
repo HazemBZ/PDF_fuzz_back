@@ -15,15 +15,15 @@ from fuzz.utils.pdf_utils import (
     get_keyword_matches_page_numbers,
 )
 from fuzz.utils.setup_utils import check_images_folder, check_processed_files
+from PDF_Fuzz.settings import IMAGES_DIR, ASSETS_DIR
 import os
 import pathlib
 
 KEYWORD = "Auto"
-PDF_FOLDER = "PFE"
-IMAGES_FOLDER = "images"
 
-check_images_folder(IMAGES_FOLDER)
-check_processed_files(PDF_FOLDER)
+
+check_images_folder(IMAGES_DIR)
+check_processed_files(ASSETS_DIR)
 
 
 # =========== API ================
@@ -38,7 +38,7 @@ def get_all_images_by_file_name(request, fileName):
         "images": list(
             map(
                 lambda p: f"{request.build_absolute_uri()}image/path/{'/'.join(p.parts[1:])}",
-                get_files_from_folder(pathlib.Path(IMAGES_FOLDER, fileName)), # <--- FIXED
+                get_files_from_folder(pathlib.Path(IMAGES_DIR, fileName)), # <--- FIXED
             )
         ),
     }
@@ -58,7 +58,7 @@ def get_images_by_keyword(request, ):
         print("fi")
         keyword = req["keyword"]
         image_matches = get_keyword_matches_page_numbers(
-            pathlib.Path(PDF_FOLDER, file), keyword
+            pathlib.Path(ASSETS_DIR, file), keyword
         )
 
         matched_pages_images.append(
@@ -69,7 +69,7 @@ def get_images_by_keyword(request, ):
                     map(
                         lambda x: f"{request.build_absolute_uri().split('image')[0]}image/path/{str(x).replace('images/','')}",
                         get_files_from_folder(
-                            pathlib.Path(IMAGES_FOLDER, pathlib.Path(file).stem),
+                            pathlib.Path(IMAGES_DIR, pathlib.Path(file).stem),
                             # pathlib.Path(file).stem,
                             fil_func=lambda x: int(x.name.split("_")[0])
                             in image_matches,
@@ -85,5 +85,5 @@ def get_images_by_keyword(request, ):
 def get_image_from_path(request, image_path):
 
     print(f'receivef path{image_path}')
-    return FileResponse(open(pathlib.Path("images", image_path), 'rb'))
+    return FileResponse(open(pathlib.Path(IMAGES_DIR, image_path), 'rb'))
 

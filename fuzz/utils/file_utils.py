@@ -1,5 +1,6 @@
 import pathlib
 
+from PDF_Fuzz.settings import ASSETS_DIR
 
 def get_files_from_folder(folder, ext="", fil_func=None):
     paths = pathlib.Path(".").glob(f"{folder}/*{'.'+ext if ext else ''}")
@@ -8,5 +9,5 @@ def get_files_from_folder(folder, ext="", fil_func=None):
     return list(paths)
 
 
-def get_pdf_files_paths_list(folder="PFE"):
+def get_pdf_files_paths_list(folder=ASSETS_DIR):
     return get_files_from_folder(folder, "pdf")

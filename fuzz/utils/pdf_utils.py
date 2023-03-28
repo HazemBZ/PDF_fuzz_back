@@ -4,11 +4,8 @@ from pdf2image import (
     convert_from_path,
     # convert_from_bytes
 )
+from PDF_Fuzz.settings import ASSETS_DIR, IMAGES_DIR
 import os
-
-
-FILES_DIR = "PFE"
-IMG_FOLDER = "images"
 
 pages_struct = []
 
