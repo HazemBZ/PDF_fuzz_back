@@ -3,6 +3,7 @@ This part is the backend written with Django, and it interacts with a web Fronte
 
 #### Step0
 Drop your pdf files inside `assets` folder
+
 #### Step1
 Select files that you want to fuzz for keywords. Tap your keyword in the search bar, then click the search button
 
@@ -26,26 +27,39 @@ Look through the pdf page. (more control actions will be provided in the future)
 
 
 ## Setup
-### Clone project
+### Manual setup
+#### Clone project
 
 ```
 $ git clone https://github.com/HazemBZ/pdf_fuzz.git
 ```
 
-### Install packages
+#### Install pdfminer
+
+Follow this [link](https://github.com/Belval/pdf2image)
+
+#### Install packages
+
+(activating a virtual environment with tools like `pyenv` or `venv` is highly recommended)
 
 ```
 $ cd pdf_fuzz
 $ pip install -r requirements
 ```
-(activating a virtual environment with tools like `pyenv` or `venv` is highly recommended)
 
-### Run migrations then run server
+#### Run server
 
 ```
-$ python manager.py migrate
 $ python manager.py runserver 8000
 ```
 
-### Run web Frontend
+### With Docker
+
+```
+docker build . -t fuzz-backend
+docker run -p8000:8000 fuzz-backend
+```
+
+## Run web Frontend
+
 Follow this [link](https://github.com/HazemBZ/pdf_fuzz_web.git)

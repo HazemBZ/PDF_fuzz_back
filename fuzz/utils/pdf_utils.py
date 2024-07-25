@@ -14,7 +14,9 @@ pages_struct = []
 
 def pdf_to_pages(name):
     """
-    returns pages (list of pages objects) and pages_layout (generator returns page objects)
+    -> (pages[], page_layouts[])
+    pages: list of pages objects
+    pages_layout (generator returns page objects)
     """
     pages_layout = []
     pages = []
@@ -48,6 +50,14 @@ def extract_page_text(page):
 ## returns a list with struct that contains infor about pages with matching keywords
 ## returned struct: {file: file_name, pageIndex: page index inside the list, pageNumber; extracted page number, lookupText: used keyword, pageText: the extracted text from the page}
 def find_pages_with_text(text, pages, lower=True):
+    """
+    -> dict(file, pageIndex, pageNumber, lookupText, pageText)
+    file: file_name
+    pageIndex: page index inside the list
+    pageNumber: extracted page number
+    lookupText: used keyword
+    pageText: the extracted text from the page
+    """
     pages_with_text = []
     for i, page in enumerate(pages):
         extracted_text = extract_page_text(page)
@@ -79,7 +89,8 @@ def get_keyword_matches_page_numbers(f_path, keyword):
 
 def convert_pdf_to_images(path):
     """
-    ()-> list of PIL images (currently can not select specific pages only batch conversion)
+    Converts a pdf file to a list of PIL images (currently can not select specific pages only batch conversion)
+    -> List[Image]
     """
     images_list = convert_from_path(path)
     return images_list
@@ -111,6 +122,9 @@ def save_images_to_dest(dest, file_path, images, extension="jpg"):
 
 
 def process_pdf_files_to_dest(r_dest, f_paths_list):
+    """
+    Takes a list of pdf filepaths then converts and saves them to a dest folder
+    """
     if not f_paths_list:
         print("no files to process")
         return
