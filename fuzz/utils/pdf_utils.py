@@ -101,7 +101,7 @@ def save_images_to_dest(dest, file_path, images, extension="jpg"):
     if not images:
         print(f"no images for {file_path}")
         return
-    os.system(f"mkdir '{dest}'")
+    os.makedirs(dest)
     for c, i in enumerate(images):
         # print(f"saving {c}_{file_path.stem}.{extension}")
         i.save(

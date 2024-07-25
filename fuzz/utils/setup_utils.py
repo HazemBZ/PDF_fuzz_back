@@ -1,15 +1,17 @@
-from fuzz.utils.file_utils import get_pdf_files_paths_list
-from fuzz.utils.pdf_utils import process_pdf_files_to_dest
-from PDF_Fuzz.settings import ASSETS_DIR, IMAGES_DIR
 import os
 
+from PDF_Fuzz.settings import ASSETS_DIR, IMAGES_DIR
 
-KEYWORD = "Auto"
+from fuzz.utils.file_utils import get_pdf_files_paths_list
+from fuzz.utils.pdf_utils import process_pdf_files_to_dest
+
 
 def check_images_folder(folder):
     if not os.access(IMAGES_DIR, os.R_OK):
-        os.system(f"mkdir '{IMAGES_DIR}'")
-        os.system(f"touch '{IMAGES_DIR}/.gitkeep'")
+        os.makedirs(IMAGES_DIR)
+        gitkeep = os.path.join(IMAGES_DIR, ".gitkeep")
+        with open(gitkeep, "x"):
+            pass
 
 
 def check_processed_files(folder):
