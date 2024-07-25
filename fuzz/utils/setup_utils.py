@@ -1,4 +1,5 @@
 import os
+from timeit import default_timer as timer
 
 from PDF_Fuzz.settings import ASSETS_DIR, IMAGES_DIR
 
@@ -19,5 +20,8 @@ def check_processed_files(folder):
     for f in _file_list:
         if not os.access(os.path.join(IMAGES_DIR, f.stem), os.R_OK):
             print(f"processing '{f}'")
+            start = timer()
             process_pdf_files_to_dest(IMAGES_DIR, [f])
+            end = timer()
+            print(f"Took: {end - start}")
             print(20 * "-")
