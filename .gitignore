@@ -4,4 +4,6 @@ PFE/*
 .vscode
 images/*
 !images/guide
+assets/
 !.gitkeep
+db.sqlite3
