@@ -1,15 +1,10 @@
-from pdfminer.high_level import extract_pages
-from pdfminer.layout import LTTextContainer
-from pdf2image import (
-    convert_from_path,
-    # convert_from_bytes
-)
-from PDF_Fuzz.settings import ASSETS_DIR, IMAGES_DIR
 import os
 
-pages_struct = []
-
-## : tuple(list_of_pages, generator_of_pages)
+from pdf2image import (
+    convert_from_path,
+)
+from pdfminer.high_level import extract_pages
+from pdfminer.layout import LTTextContainer
 
 
 def pdf_to_pages(name):
@@ -29,9 +24,8 @@ def pdf_to_pages(name):
             pages.append(el)
     except StopIteration:
         pass
-    except Exception as e:
+    except Exception:
         print(f"Failed to completely process file '{name}'")
-    # print(f"Layout ======= \n{pages_layout}")
     return pages, pages_layout
 
 
@@ -46,9 +40,7 @@ def extract_page_text(page):
     return text
 
 
-# should be repurposed/scrapped !
-## returns a list with struct that contains infor about pages with matching keywords
-## returned struct: {file: file_name, pageIndex: page index inside the list, pageNumber; extracted page number, lookupText: used keyword, pageText: the extracted text from the page}
+# Should be repurposed/scrapped !
 def find_pages_with_text(text, pages, lower=True):
     """
     -> dict(file, pageIndex, pageNumber, lookupText, pageText)
@@ -96,18 +88,6 @@ def convert_pdf_to_images(path):
     return images_list
 
 
-# should be scrapped !
-def get_pdf_matched_pages_images(path, l=[]):
-    if not l:
-        print(f"no matched pages {l}")
-        return
-    else:
-        print(f"converting images of {path} for matched pages{l}")
-    images_list = convert_from_path(path)
-    print(f"images converion {images_list}")
-    return [images_list[i - 1] for i in l]
-
-
 def save_images_to_dest(dest, file_path, images, extension="jpg"):
     if not images:
         print(f"no images for {file_path}")
@@ -118,7 +98,7 @@ def save_images_to_dest(dest, file_path, images, extension="jpg"):
         i.save(
             os.path.join(dest, f"{c+1}_{file_path.stem}.{extension}")
         )  # c+1 => pages start from 1
-    print(f"finished saving images {dest}")
+    print(f"finished saving images to {dest}")
 
 
 def process_pdf_files_to_dest(r_dest, f_paths_list):
@@ -132,5 +112,4 @@ def process_pdf_files_to_dest(r_dest, f_paths_list):
         for fp in f_paths_list:
             saving_folder = os.path.join(r_dest, fp.stem)
             images_list = convert_from_path(fp)
-
             save_images_to_dest(saving_folder, fp, images_list)
