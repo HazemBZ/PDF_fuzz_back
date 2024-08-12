@@ -7,3 +7,4 @@ images/*
 assets/
 !.gitkeep
 db.sqlite3
+example*.json
