@@ -15,7 +15,6 @@ def pdf_to_pages(name):
     """
     pages_layout = []
     pages = []
-    print(f"processing '{name}'")
     try:
         # pages generator
         pages_layout = extract_pages(name)
@@ -26,7 +25,8 @@ def pdf_to_pages(name):
         pass
     except Exception:
         print(f"Failed to completely process file '{name}'")
-    return pages, pages_layout
+    finally:
+        return pages, pages_layout
 
 
 def extract_page_text(page):
@@ -77,6 +77,26 @@ def get_keyword_matches_page_numbers(f_path, keyword):
             pages_with_text.add(page.pageid)
 
     return list(pages_with_text)
+
+def get_file_documents(f_path):
+    """
+    Transforms pdf pages into document format to be ingested by es
+    """
+    try:
+        pages, _ = pdf_to_pages(f_path)
+        documents = []
+        for i, page in enumerate(pages):
+            extracted_text = extract_page_text(page)
+            documents.append({
+                'file_path': str(f_path),
+                'content': extracted_text,
+                'page_number': i + 1,
+                'page_id': page.pageid,
+            })
+        return documents
+    except Exception as e:
+        print(e.__traceback__)
+        return []
 
 
 def convert_pdf_to_images(path):

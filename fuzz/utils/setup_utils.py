@@ -17,6 +17,7 @@ def check_images_folder(folder):
 
 def check_processed_files(folder):
     _file_list = get_pdf_files_paths_list(ASSETS_DIR)
+    print(20 * "-")
     for f in _file_list:
         if not os.access(os.path.join(IMAGES_DIR, f.stem), os.R_OK):
             print(f"processing '{f}'")
