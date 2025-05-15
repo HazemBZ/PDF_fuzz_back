@@ -8,4 +8,6 @@ django-cors-headers
 djangorestframework
 djangorestframework-jwt
 djangorestframework-simplejwt
-elasticsearch
+django-extensions
+jupyterlab
+elasticsearch==8.14.0
