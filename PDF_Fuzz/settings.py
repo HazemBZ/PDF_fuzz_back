@@ -15,7 +15,8 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-ASSETS_DIR = "assets"
+# ASSETS_DIR = "assets"
+ASSETS_DIR = "uploads"
 IMAGES_DIR = "images"
 
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "fuzz",
+    "chunkedUpload",
 ]
 
 MIDDLEWARE = [

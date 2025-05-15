@@ -17,4 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-urlpatterns = [path("admin/", admin.site.urls), path("api/fuzz/", include("fuzz.urls"))]
+urlpatterns = [
+    path("admin/", admin.site.urls), 
+    path("api/fuzz/", include("fuzz.urls")),
+    path("chunkedUpload/", include("chunkedUpload.urls"))
+    ]
