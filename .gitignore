@@ -8,3 +8,10 @@ assets/
 !.gitkeep
 db.sqlite3
 example*.json
+
+# logs
+logs/*
+!.gitkeep
+
+# uploads
+uploads/*
