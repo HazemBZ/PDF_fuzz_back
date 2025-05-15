@@ -5,7 +5,7 @@ from pprint import pprint
 from itertools import groupby
 
 class Command(BaseCommand):
-    help = "Returns result of a es lookup"
+    help = "Returns result of an es lookup"
 
     def add_arguments(self, *args, **kwargs):
         pass

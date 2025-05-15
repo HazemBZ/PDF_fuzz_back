@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "fuzz",
     "chunkedUpload",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -153,3 +154,46 @@ CSRF_TRUSTED_ORIGINS = [
 # CORS_ORIGIN_WHITELIST = (
 #   'http://localhost:3000',
 # )
+
+
+LOG_FILE_PATH = "logs/general.log"
+# Fix for jupyter log  file resolution failure
+if "/app" in __file__:
+    LOG_FILE_PATH = "/app/logs/general.log"
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s [%(name)s:%(funcName)s] :: %(message)s"
+            "%(process)d %(thread)d %(message)s"
+        },
+        "simple": {
+            "format": "%(levelname)s %(asctime)s [%(name)s:%(funcName)s] :: %(message)s"
+        },
+    },
+    "handlers": {
+        # Send info level messages to console
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        # level DEBUG and higher
+        # Disable this block if it django shell jupyter notebooks keep failing
+        "file": {
+            "class": "logging.FileHandler",
+            "level": "INFO",
+            "filename": LOG_FILE_PATH,
+            "mode": "a",
+            "formatter": "verbose",
+        },
+    },
+    # maps to all loggers:
+    # https://docs.djangoproject.com/en/5.0/howto/logging/#configure-a-logger-mapping
+    "loggers": {
+        "": {"level": "DEBUG", "handlers": ["console", "file"]},
+    },  # logs capture and forwarding
+}

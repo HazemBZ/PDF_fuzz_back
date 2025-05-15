@@ -1,11 +1,14 @@
-from pprint import pprint
-from elasticsearch import Elasticsearch
-from fuzz.utils.pdf_utils import get_file_documents, process_pdf_files_to_dest
-from fuzz.utils.file_utils import get_pdf_files_paths_list
-from PDF_Fuzz.settings import ASSETS_DIR, IMAGES_DIR
 import os
 from timeit import default_timer as timer
 
+from elasticsearch import Elasticsearch
+from PDF_Fuzz.settings import ASSETS_DIR, IMAGES_DIR
+
+from fuzz.utils.file_utils import get_pdf_files_paths_list
+from fuzz.utils.pdf_utils import get_file_documents, process_pdf_files_to_dest
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Search:
     PDF_INDEX = "pdf_contents_doc"
@@ -17,8 +20,8 @@ class Search:
             ES = os.environ.get("ELASTIC_ADDRESS")
             cls.es = Elasticsearch(f"http://{ES}:9200")
             client_info = cls.es.info()
-            print("Connected to Elasticsearch")
-            pprint(client_info.body)
+            logger.info("Connected to Elasticsearch")
+            logger.debug(client_info.body)
 
     @classmethod
     def create_index(cls, index=None):
@@ -26,7 +29,8 @@ class Search:
             index = cls.PDF_INDEX
         cls.es.indices.delete(index=index, ignore_unavailable=True)
         resp = cls.es.indices.create(index=index)
-        print("Created index", resp)
+        logger.info("Created index")
+        logger.debug(resp)
 
     def insert_document(self, index, document):
         if index is None:
@@ -41,9 +45,9 @@ class Search:
         for document in documents:
             operations.append({"index": {"_index": index}})
             operations.append(document)
-        print(f"Trying to insert {len(operations)/2} docs ...")
+        logger.info(f"Trying to insert {len(operations)/2} docs ...")
         if len(documents) == 0:
-            print("Skipping: check file validity!")
+            logger.info("Skipping: check file validity!")
             return
 
         resp = cls.es.bulk(operations=operations)
@@ -63,31 +67,31 @@ class Search:
 
         cls.create_index()
 
-        print("Reindexation signal!")
+        logger.info("Reindexation signal!")
 
-        process_pdf_files_to_dest
+        # process_pdf_files_to_dest
 
         file_list = get_pdf_files_paths_list(ASSETS_DIR)
         # print('files ', file_list)
-        print(20 * "-")
+        logger.info(20 * "-")
         for file in file_list:
             if not os.access(os.path.join(IMAGES_DIR, file.stem), os.R_OK):
-                print(f"processing '{file}'")
+                logger.info(f"processing '{file}'")
                 start = timer()
 
                 process_pdf_files_to_dest(IMAGES_DIR, [file])
 
                 end = timer()
-                print(f"Took: {end - start}")
+                logger.info(f"Took: {end - start}")
 
-            print(f"Indexing '{file}'")
+            logger.info(f"Indexing '{file}'")
             start = timer()
             documents = get_file_documents(file)
             end = timer()
             cls.insert_documents(index, documents)
 
-            print(f"Took: {end - start}")
-            print(20 * "-")
+            logger.info(f"Took: {end - start}")
+            logger.info(20 * "-")
 
         # TODO: Send File processing tasks instead
 

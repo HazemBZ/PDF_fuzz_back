@@ -1,3 +1,4 @@
+import logging
 import os
 
 from pdf2image import (
@@ -5,6 +6,8 @@ from pdf2image import (
 )
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer
+
+logger = logging.getLogger(__name__)
 
 
 def pdf_to_pages(name):
@@ -24,7 +27,7 @@ def pdf_to_pages(name):
     except StopIteration:
         pass
     except Exception:
-        print(f"Failed to completely process file '{name}'")
+        logger.exception(f"Failed to completely process file '{name}'")
     finally:
         return pages, pages_layout
 
@@ -67,6 +70,7 @@ def find_pages_with_text(text, pages, lower=True):
     return pages_with_text
 
 
+# Deprecated: manual search
 def get_keyword_matches_page_numbers(f_path, keyword):
     pages, _ = pdf_to_pages(f_path)
     pages_with_text = set()
@@ -78,6 +82,7 @@ def get_keyword_matches_page_numbers(f_path, keyword):
 
     return list(pages_with_text)
 
+
 def get_file_documents(f_path):
     """
     Transforms pdf pages into document format to be ingested by es
@@ -87,15 +92,17 @@ def get_file_documents(f_path):
         documents = []
         for i, page in enumerate(pages):
             extracted_text = extract_page_text(page)
-            documents.append({
-                'file_path': str(f_path),
-                'content': extracted_text,
-                'page_number': i + 1,
-                'page_id': page.pageid,
-            })
+            documents.append(
+                {
+                    "file_path": str(f_path),
+                    "content": extracted_text,
+                    "page_number": i + 1,
+                    "page_id": page.pageid,
+                }
+            )
         return documents
-    except Exception as e:
-        print(e.__traceback__)
+    except Exception:
+        logger.exception("")
         return []
 
 
@@ -110,15 +117,15 @@ def convert_pdf_to_images(path):
 
 def save_images_to_dest(dest, file_path, images, extension="jpg"):
     if not images:
-        print(f"no images for {file_path}")
+        logger.debug(f"no images for {file_path}")
         return
     os.makedirs(dest)
     for c, i in enumerate(images):
         # print(f"saving {c}_{file_path.stem}.{extension}")
         i.save(
-            os.path.join(dest, f"{c+1}_{file_path.stem}.{extension}")
+            os.path.join(dest, f"{c + 1}_{file_path.stem}.{extension}")
         )  # c+1 => pages start from 1
-    print(f"finished saving images to {dest}")
+    logger.info(f"finished saving images to {dest}")
 
 
 def process_pdf_files_to_dest(r_dest, f_paths_list):
@@ -126,7 +133,7 @@ def process_pdf_files_to_dest(r_dest, f_paths_list):
     Takes a list of pdf filepaths then converts and saves them to a dest folder
     """
     if not f_paths_list:
-        print("no files to process")
+        logger.info("no files to process")
         return
     else:
         for fp in f_paths_list:
