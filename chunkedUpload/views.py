@@ -14,7 +14,7 @@ from .response import Response
 from .constants import http_status, COMPLETE
 from .exceptions import ChunkedUploadError
 
-from fuzz.etl.PdfETL import PdfETL
+from fuzz.etl.Orchestrator import ETLOrchestrator
 
 
 
@@ -268,12 +268,12 @@ class ChunkedUploadCompleteView(ChunkedUploadBaseView):
         instance.realname = realname
         instance_path = str(instance.file)
         path = Path(instance_path)
-        new_name = Path(path.parent, instance.realname)
-        path.rename(new_name)
-        instance.file.name = str(new_name)
+        new_path = Path(path.parent, instance.realname)
+        path.rename(new_path)
+        instance.file.name = new_path.name
         instance.save()
         
-        PdfETL(new_name).execute()
+        ETLOrchestrator.process(new_path)
 
     def is_valid_chunked_upload(self, chunked_upload):
         """
