@@ -60,7 +60,7 @@ class PdfETL:
                 extracted_text = self.extract_page_text(page)
                 documents.append(
                     {
-                        "file_path": filepath,
+                        "file_path": filepath.name,
                         "content": extracted_text,
                         "page_number": i + 1,
                         "page_id": page.pageid,
@@ -81,30 +81,20 @@ class PdfETL:
         # Search.
         Search.insert_documents(self.es_index, documents)
 
-    # dir_path = '/path/to/directory_with_contents'
-    # try:
-    #     shutil.rmtree(dir_path)  # Deletes directory and all contents
-    #     print(f"Directory {dir_path} and all contents deleted successfully")
-    # except OSError as e:
-    #     print(f"Error deleting {dir_path}: {e}")
-
     def load_image_files(self, image_files):
-        import shutil
-
-        shutil.rmtree
-        # import shutil
         file_path = self.file
         destination = IMAGES_DIR
         extension = "jpg"
+        filename = file_path.stem
 
         if not image_files:
             logger.debug(f"no images for {file_path}")
             return
-        # os.makedirs(destination)
+        os.makedirs(os.path.join(destination, filename))
         for c, i in enumerate(image_files):
             # print(f"saving {c}_{file_path.stem}.{extension}")
             i.save(
-                os.path.join(destination, f"{c + 1}_{file_path.stem}.{extension}")
+                os.path.join(destination, filename, f"{c + 1}_{filename}.{extension}")
             )  # c+1 => pages start from 1
             logger.info(f"finished saving images to {destination}")
 
@@ -112,9 +102,6 @@ class PdfETL:
     def execute(self):
         """Apply etl pipeline"""
 
-        if ".pdf" not in self.file.name:
-            return
-        
         # Extract pages
         pages, _ = self.extract_pages(self.file)
 
