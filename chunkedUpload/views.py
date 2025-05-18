@@ -14,6 +14,8 @@ from .response import Response
 from .constants import http_status, COMPLETE
 from .exceptions import ChunkedUploadError
 
+from fuzz.etl.PdfETL import PdfETL
+
 
 
 def is_authenticated(user):
@@ -244,6 +246,7 @@ class ChunkedUploadView(ChunkedUploadBaseView):
                         status=http_status.HTTP_200_OK)
 
 
+# TODO: execute ETL in background
 class ChunkedUploadCompleteView(ChunkedUploadBaseView):
     """
     Completes an chunked upload. Method `on_completion` is a placeholder to
@@ -269,6 +272,8 @@ class ChunkedUploadCompleteView(ChunkedUploadBaseView):
         path.rename(new_name)
         instance.file.name = str(new_name)
         instance.save()
+        
+        PdfETL(new_name).execute()
 
     def is_valid_chunked_upload(self, chunked_upload):
         """

@@ -43,46 +43,6 @@ def extract_page_text(page):
     return text
 
 
-# Should be repurposed/scrapped !
-def find_pages_with_text(text, pages, lower=True):
-    """
-    -> dict(file, pageIndex, pageNumber, lookupText, pageText)
-    file: file_name
-    pageIndex: page index inside the list
-    pageNumber: extracted page number
-    lookupText: used keyword
-    pageText: the extracted text from the page
-    """
-    pages_with_text = []
-    for i, page in enumerate(pages):
-        extracted_text = extract_page_text(page)
-        if text.lower() in extracted_text.lower():
-            pages_with_text.append(
-                {
-                    "pageIndex": i,
-                    "pageID": page.pageid,
-                    "pageNumber": extracted_text[-2],
-                    "lookupText": text,
-                    "pageText": extracted_text,
-                }
-            )
-
-    return pages_with_text
-
-
-# Deprecated: manual search
-def get_keyword_matches_page_numbers(f_path, keyword):
-    pages, _ = pdf_to_pages(f_path)
-    pages_with_text = set()
-    for i, page in enumerate(pages):
-        extracted_text = extract_page_text(page)
-        if keyword.lower() in extracted_text.lower():
-            # pages_with_text.append({"pageIndex": i, "pageID": page.pageid, "pageNumber": extracted_text[-2], "lookupText": text, "pageText": extracted_text})
-            pages_with_text.add(page.pageid)
-
-    return list(pages_with_text)
-
-
 def get_file_documents(f_path):
     """
     Transforms pdf pages into document format to be ingested by es
