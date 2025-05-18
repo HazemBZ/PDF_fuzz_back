@@ -1,9 +1,9 @@
 import os
 from timeit import default_timer as timer
 
-from PDF_Fuzz.settings import ASSETS_DIR, IMAGES_DIR
+from PDF_Fuzz.settings import IMAGES_DIR
 
-from fuzz.utils.file_utils import get_pdf_files_paths_list
+from fuzz.utils.file_utils import FileManager
 from fuzz.utils.pdf_utils import process_pdf_files_to_dest
 
 
@@ -16,7 +16,7 @@ def check_images_folder(folder):
 
 
 def check_processed_files(folder):
-    _file_list = get_pdf_files_paths_list(ASSETS_DIR)
+    _file_list = FileManager.get_uploaded_files("*.pdf")
     print(20 * "-")
     for f in _file_list:
         if not os.access(os.path.join(IMAGES_DIR, f.stem), os.R_OK):

@@ -17,6 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ASSETS_DIR = "assets"
 ASSETS_DIR = "uploads"
+UPLOADS_DIR = "uploads"
 IMAGES_DIR = "images"
 
 

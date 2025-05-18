@@ -2,9 +2,9 @@ import os
 from timeit import default_timer as timer
 
 from elasticsearch import Elasticsearch
-from PDF_Fuzz.settings import ASSETS_DIR, IMAGES_DIR
+from PDF_Fuzz.settings import IMAGES_DIR
 
-from fuzz.utils.file_utils import get_pdf_files_paths_list
+from fuzz.utils.file_utils import FileManager
 from fuzz.utils.pdf_utils import get_file_documents, process_pdf_files_to_dest
 import logging
 
@@ -69,10 +69,8 @@ class Search:
 
         logger.info("Reindexation signal!")
 
-        # process_pdf_files_to_dest
 
-        file_list = get_pdf_files_paths_list(ASSETS_DIR)
-        # print('files ', file_list)
+        file_list = FileManager.get_uploaded_files("*.pdf")
         logger.info(20 * "-")
         for file in file_list:
             if not os.access(os.path.join(IMAGES_DIR, file.stem), os.R_OK):

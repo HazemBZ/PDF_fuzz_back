@@ -1,19 +1,54 @@
 import os
 import pathlib
 
-from PDF_Fuzz.settings import ASSETS_DIR
+from PDF_Fuzz.settings import IMAGES_DIR, UPLOADS_DIR
+
+cm = classmethod
 
 
-def get_pdf_files_paths_list(folder=ASSETS_DIR):
-    pdf_files = []
-    for root, _dir, files in os.walk(os.path.join(ASSETS_DIR)):
-        pdf_files.extend(pathlib.Path(root).glob("*.pdf"))
-    return pdf_files
+class FileManager:
+    def __init__(self):
+        pass
 
+    @cm
+    def get_uploaded_files(cls, pattern="*"):
+        exclusion_list = [".gitkeep"]
+        path = pathlib.Path(UPLOADS_DIR)
 
-def get_files_from_folder(folder, ext="pdf", filter_func=None):
-    paths = []
-    for root, _dir, files in os.walk(folder):
-        paths.extend(pathlib.Path(root).glob(f"*.{ext}"))
-    return list(paths)
+        # Options: file.relative_to(path), file.name
+        paths = [
+            file
+            for file in path.rglob(pattern)
+            if file.is_file() and file.name not in exclusion_list
+        ]
+        return paths
 
+    @cm
+    def get_images(cls, pattern="*"):
+        exclusion_list = [".gitkeep"]
+
+        path = pathlib.Path(IMAGES_DIR)
+
+        paths = [
+            file
+            for file in path.rglob(pattern)
+            if file.is_file() and file.name not in exclusion_list
+        ]
+        return paths
+
+    @cm
+    def delete_path_recursively(cls, path):
+        exclusion_list = [".gitkeep"]
+        if (
+            os.path.isfile(path)
+            # or os.path.islink(path)
+            and path.name not in exclusion_list
+        ):
+            os.remove(path)  # Delete the file or link
+        elif os.path.isdir(path):
+            # Delete all contents first
+            for item in os.listdir(path):
+                item_path = os.path.join(path, item)
+                cls.delete_path_recursively(item_path)
+            # Then delete the empty directory
+            os.rmdir(path)

@@ -4,7 +4,7 @@ import pathlib
 from django.http import FileResponse, JsonResponse
 from PDF_Fuzz.settings import IMAGES_DIR
 
-from fuzz.utils.file_utils import get_files_from_folder, get_pdf_files_paths_list
+from fuzz.utils.file_utils import FileManager
 from fuzz.search import Search
 from itertools import groupby
 
@@ -14,11 +14,13 @@ from itertools import groupby
 
 
 # =========== API ================
+
+# TODO: Refactor
 def get_all_file_names(
     request,
 ):
     pdf_file_names = list(
-        map(lambda x: {"name": x.name, "path": str(x)}, get_pdf_files_paths_list())
+        map(lambda x: {"name": x.name, "path": str(x)}, FileManager.get_uploaded_files("*.pdf"))
     )
     return JsonResponse(
         pdf_file_names,
@@ -26,19 +28,21 @@ def get_all_file_names(
     )
 
 
+# TODO: Refactor
 def get_all_images_by_file_name(request, fileName):
     image_obj = {
         "file": fileName,
         "images": list(
             map(
                 lambda p: f"{request.build_absolute_uri()}image/path/{'/'.join(p.parts[1:])}",
-                get_files_from_folder(pathlib.Path(IMAGES_DIR, fileName)),
+                FileManager.get_images(fileName),
             )
         ),
     }
     return JsonResponse(image_obj)
 
 
+# TODO: Refactor
 def get_images_by_keyword(request):
     body = request.body
     if not body:  # check if json later
