@@ -1,15 +1,13 @@
 import logging
-from pdfminer.high_level import extract_pages
-from pdfminer.layout import LTTextContainer
-from fuzz.search import Search
 import os
 
-from PDF_Fuzz.settings import IMAGES_DIR
-
-
+from fuzz.search import Search
 from pdf2image import (
     convert_from_path,
 )
+from PDF_Fuzz.settings import IMAGES_DIR
+from pdfminer.high_level import extract_pages
+from pdfminer.layout import LTTextContainer
 
 logger = logging.getLogger(__name__)
 
@@ -32,18 +30,11 @@ class PdfETL:
         return text
 
     def extract_pages(self, file):
-        """
-        -> (pages[], page_layouts[])
-        pages: list of pages objects
-        pages_layout (generator returns page objects)
-        """
         pages_layout = []
         pages = []
         try:
-            # pages generator
             pages_layout = extract_pages(file)
             while el := next(pages_layout):
-                # save in pages list
                 pages.append(el)
         except StopIteration:
             pass
@@ -78,7 +69,6 @@ class PdfETL:
 
     def load_es_documents(self, documents):
         """Save document data to a vector db"""
-        # Search.
         Search.insert_documents(self.es_index, documents)
 
     def load_image_files(self, image_files):
@@ -92,13 +82,11 @@ class PdfETL:
             return
         os.makedirs(os.path.join(destination, filename))
         for c, i in enumerate(image_files):
-            # print(f"saving {c}_{file_path.stem}.{extension}")
             i.save(
                 os.path.join(destination, filename, f"{c + 1}_{filename}.{extension}")
-            )  # c+1 => pages start from 1
+            )
             logger.info(f"finished saving images to {destination}")
 
-    # #NOW
     def execute(self):
         """Apply etl pipeline"""
 
@@ -111,8 +99,8 @@ class PdfETL:
         # Load es documents
         self.load_es_documents(es_documents)
 
-        ## Extract images
+        # Extract images
         image_files = self.transform_pages_to_render_images()
 
-        ## Save images
+        # Save images
         self.load_image_files(image_files)
