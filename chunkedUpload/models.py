@@ -94,10 +94,12 @@ class ChunkedUpload(AbstractChunkedUpload):
     """
     Default chunked upload model.
     """
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='chunked_uploads',
+        related_name="chunked_uploads",
         null=DEFAULT_MODEL_USER_FIELD_NULL,
-        blank=DEFAULT_MODEL_USER_FIELD_BLANK
+        blank=DEFAULT_MODEL_USER_FIELD_BLANK,
     )
+    hash = models.CharField(max_length=32, db_index=True)
