@@ -17,3 +17,6 @@ uploads/*
 
 # notebooks
 notebooks/*
+
+# migrations
+chunkedUpload/migrations
