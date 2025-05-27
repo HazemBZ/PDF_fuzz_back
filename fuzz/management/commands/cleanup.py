@@ -2,6 +2,7 @@ import logging
 from django.core.management.base import BaseCommand
 from fuzz.utils.file_utils import FileManager
 from PDF_Fuzz.settings import IMAGES_DIR, UPLOADS_DIR
+from chunkedUpload.models import ChunkedUpload
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,8 @@ class Command(BaseCommand):
         try:
             FileManager.delete_path_recursively(UPLOADS_DIR)
             FileManager.delete_path_recursively(IMAGES_DIR)
+            ChunkedUpload.objects.all().delete()
+
         except Exception:
             logger.exception("Failed to cleanup")
         else:
