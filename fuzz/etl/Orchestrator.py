@@ -1,17 +1,19 @@
-from fuzz.etl.PdfETL import PdfETL
-from fuzz.etl.ImageETL import ImageETL
-
 import logging
+
+from fuzz.etl.ImageETL import ImageETL
+from fuzz.etl.PdfETL import PdfETL
 
 logger = logging.getLogger(__name__)
 
 cm = classmethod
+
 
 class ETLOrchestrator:
     """Handles ETL execution according to extension rules"""
 
     def __init__(self):
         pass
+
     @cm
     def process(cls, file):
         extension = file.suffix[1:]
