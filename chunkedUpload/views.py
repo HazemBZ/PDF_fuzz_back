@@ -7,6 +7,8 @@ from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.http import JsonResponse
+import json
 
 from .settings import MAX_BYTES
 from .models import ChunkedUpload
@@ -16,6 +18,9 @@ from .exceptions import ChunkedUploadError
 
 from fuzz.etl.Orchestrator import ETLOrchestrator
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def is_authenticated(user):
@@ -192,7 +197,9 @@ class ChunkedUploadView(ChunkedUploadBaseView):
                                      detail='No chunk file was submitted')
         self.validate(request)
 
-        upload_id = request.POST.get('upload_id')
+        upload_id = request.POST.get("upload_id")
+        hash = request.POST.get("hash")
+
         if upload_id:
             chunked_upload = get_object_or_404(self.get_queryset(request),
                                                upload_id=upload_id)
@@ -203,8 +210,9 @@ class ChunkedUploadView(ChunkedUploadBaseView):
             attrs.update(self.get_extra_attrs(request))
             chunked_upload = self.create_chunked_upload(save=False, **attrs)
 
-        content_range = request.META.get(self.content_range_header, '')
-        print(f'content_range {content_range}')
+        if hash:
+            chunked_upload.hash = hash
+
         match = self.content_range_pattern.match(content_range)
         if match:
             start = int(match.group('start'))
@@ -328,5 +336,19 @@ class ChunkedUploadCompleteView(ChunkedUploadBaseView):
         self._save(chunked_upload)
         self.on_completion(chunked_upload.get_uploaded_file(), request)
 
-        return Response(self.get_response_data(chunked_upload, request),
-                        status=http_status.HTTP_200_OK)
+
+
+class ChunkedUploadCheck(View):
+    def post(self, request, *args, **kwargs):
+        hashes = json.loads(request.body).get("hashes")
+
+        saved_hashes = ChunkedUpload.objects.values_list("hash", flat=True)
+
+        logger.info(f"Confronting hashes, saved={saved_hashes}; received={hashes}")
+
+        if saved_hashes:
+            accepted_hashes = [h not in saved_hashes for h in hashes]
+        else:
+            accepted_hashes = hashes
+
+        return JsonResponse({"hashes": accepted_hashes})
