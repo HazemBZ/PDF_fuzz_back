@@ -156,6 +156,10 @@ CSRF_TRUSTED_ORIGINS = [
 #   'http://localhost:3000',
 # )
 
+CORS_ALLOW_HEADERS = [
+    "*",
+]
+
 
 LOG_FILE_PATH = "logs/general.log"
 # Fix for jupyter log  file resolution failure
