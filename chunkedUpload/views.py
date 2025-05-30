@@ -302,7 +302,7 @@ class ChunkedUploadCompleteView(ChunkedUploadBaseView):
         instance.file.name = new_path.name
         instance.save()
 
-        # ETLOrchestrator.process(new_path)
+        ETLOrchestrator.process(new_path)
 
     def is_valid_chunked_upload(self, chunked_upload):
         """
