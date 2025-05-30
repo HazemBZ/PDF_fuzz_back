@@ -6,8 +6,7 @@ from pdf2image import (
     convert_from_path,
 )
 from PDF_Fuzz.settings import IMAGES_DIR
-from pdfminer.high_level import extract_pages
-from pdfminer.layout import LTTextContainer
+import pymupdf
 
 logger = logging.getLogger(__name__)
 
@@ -19,42 +18,31 @@ class PdfETL:
         self.loader = "SET_LOADER"
         self.es_index = "pdf_contents_doc"
 
-    def extract_page_text(self, page):
-        """
-        finds and returns all text containers in a Page
-        """
-        text = ""
-        for el in page:
-            if isinstance(el, LTTextContainer):
-                text += el.get_text()
-        return text
+    def extract_pages_text(self, file):
+        doc = pymupdf.open(file)
+        pages_text = []
+        for page in doc:
+            text = page.get_text()
+            # .encode("utf8")
+            # Write page delimeter ??
+            sanitized_text = text.replace("\x00", "\ufffd")
+            pages_text.append(sanitized_text)
 
-    def extract_pages(self, file):
-        pages_layout = []
-        pages = []
-        try:
-            pages_layout = extract_pages(file)
-            while el := next(pages_layout):
-                pages.append(el)
-        except StopIteration:
-            pass
-        except Exception:
-            logger.exception(f"Failed to completely process file '{file}'")
-        finally:
-            return pages, pages_layout
+        doc.close()
 
-    def transform_to_es_document(self, pages):
+        return pages_text
+
+    def transform_to_es_document(self, pages_text):
         documents = []
         filepath = self.file
         try:
-            for i, page in enumerate(pages):
-                extracted_text = self.extract_page_text(page)
+            for i, text in enumerate(pages_text):
                 documents.append(
                     {
                         "file_path": filepath.name,
-                        "content": extracted_text,
+                        "content": text,
                         "page_number": i + 1,
-                        "page_id": page.pageid,
+                        "page_id": i + 1,
                     }
                 )
             return documents
@@ -91,10 +79,10 @@ class PdfETL:
         """Apply etl pipeline"""
 
         # Extract pages
-        pages, _ = self.extract_pages(self.file)
+        pages_text = self.extract_pages_text(self.file)
 
         # Transform to es document
-        es_documents = self.transform_to_es_document(pages)
+        es_documents = self.transform_to_es_document(pages_text)
 
         # Load es documents
         self.load_es_documents(es_documents)

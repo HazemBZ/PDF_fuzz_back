@@ -1,11 +1,7 @@
 import os
-from timeit import default_timer as timer
 
 from elasticsearch import Elasticsearch
-from PDF_Fuzz.settings import IMAGES_DIR
 
-from fuzz.utils.file_utils import FileManager
-from fuzz.utils.pdf_utils import get_file_documents, process_pdf_files_to_dest
 import logging
 
 logger = logging.getLogger(__name__)
@@ -54,42 +50,42 @@ class Search:
 
         return resp
 
-    @classmethod
-    def reindex(cls, index=None):
-        """
-        NOTE: When indexing a very large number of documents it would be best to divide the list of documents in smaller sets and import each set separately.
-        TODO: 1. File indexation + processing
-        todo: 2. Parallelize
-        todo: 3. Non destructive reindexation (Reindex only non indexed files)
-        """
-        if index is None:
-            index = cls.PDF_INDEX
+    # @classmethod
+    # def reindex(cls, index=None):
+    #     """
+    #     NOTE: When indexing a very large number of documents it would be best to divide the list of documents in smaller sets and import each set separately.
+    #     TODO: 1. File indexation + processing
+    #     todo: 2. Parallelize
+    #     todo: 3. Non destructive reindexation (Reindex only non indexed files)
+    #     """
+    #     if index is None:
+    #         index = cls.PDF_INDEX
 
-        cls.create_index()
+    #     cls.create_index()
 
-        logger.info("Reindexation signal!")
+    #     logger.info("Reindexation signal!")
 
 
-        file_list = FileManager.get_uploaded_files("*.pdf")
-        logger.info(20 * "-")
-        for file in file_list:
-            if not os.access(os.path.join(IMAGES_DIR, file.stem), os.R_OK):
-                logger.info(f"processing '{file}'")
-                start = timer()
+    #     file_list = FileManager.get_uploaded_files("*.pdf")
+    #     logger.info(20 * "-")
+    #     for file in file_list:
+    #         if not os.access(os.path.join(IMAGES_DIR, file.stem), os.R_OK):
+    #             logger.info(f"processing '{file}'")
+    #             start = timer()
 
-                process_pdf_files_to_dest(IMAGES_DIR, [file])
+    #             process_pdf_files_to_dest(IMAGES_DIR, [file])
 
-                end = timer()
-                logger.info(f"Took: {end - start}")
+    #             end = timer()
+    #             logger.info(f"Took: {end - start}")
 
-            logger.info(f"Indexing '{file}'")
-            start = timer()
-            documents = get_file_documents(file)
-            end = timer()
-            cls.insert_documents(index, documents)
+    #         logger.info(f"Indexing '{file}'")
+    #         start = timer()
+    #         documents = get_file_documents(file)
+    #         end = timer()
+    #         cls.insert_documents(index, documents)
 
-            logger.info(f"Took: {end - start}")
-            logger.info(20 * "-")
+    #         logger.info(f"Took: {end - start}")
+    #         logger.info(20 * "-")
 
         # TODO: Send File processing tasks instead
 
