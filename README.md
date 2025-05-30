@@ -34,9 +34,9 @@ Look through the pdf page. (more control actions will be provided in the future)
 $ git clone https://github.com/HazemBZ/pdf_fuzz.git
 ```
 
-#### Install pdfminer
+#### Case running outside containers
 
-Follow this [link](https://github.com/Belval/pdf2image)
+Install pdf2image [link](https://github.com/Belval/pdf2image)
 
 #### Install packages
 
