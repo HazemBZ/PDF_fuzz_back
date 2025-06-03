@@ -11,3 +11,5 @@ django-extensions
 jupyterlab
 elasticsearch==8.14.0
 pymupdf==1.25.5
+celery[redis]
+flower==2.0.1
