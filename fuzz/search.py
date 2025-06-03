@@ -18,6 +18,7 @@ class Search:
             client_info = cls.es.info()
             logger.info("Connected to Elasticsearch")
             logger.debug(client_info.body)
+        return cls.es
 
     @classmethod
     def create_index(cls, index=None):
@@ -35,6 +36,7 @@ class Search:
 
     @classmethod
     def insert_documents(cls, index, documents):
+        es = cls.connect()
         if index is None:
             index = cls.PDF_INDEX
         operations = []
@@ -46,7 +48,7 @@ class Search:
             logger.info("Skipping: check file validity!")
             return
 
-        resp = cls.es.bulk(operations=operations)
+        resp = es.bulk(operations=operations)
 
         return resp
 

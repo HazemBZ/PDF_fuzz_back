@@ -2,6 +2,8 @@ import logging
 
 from fuzz.etl.ImageETL import ImageETL
 from fuzz.etl.PdfETL import PdfETL
+from fuzz.search import Search
+
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +17,13 @@ class ETLOrchestrator:
         pass
 
     @cm
+    def startup(cls):
+        if Search.es is None:
+            Search.connect()
+
+    @cm
     def process(cls, file):
+        cls.startup()
         extension = file.suffix[1:]
 
         match extension:

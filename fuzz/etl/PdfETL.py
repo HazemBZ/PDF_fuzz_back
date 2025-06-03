@@ -50,9 +50,9 @@ class PdfETL:
             logger.exception("")
             return []
 
-    def transform_pages_to_render_images(self):
+    def transform_pages_to_render_images(self, file):
         """For each document page create render images"""
-        images_list = convert_from_path(self.file)
+        images_list = convert_from_path(file)
         return images_list
 
     def load_es_documents(self, documents):
@@ -88,7 +88,7 @@ class PdfETL:
         self.load_es_documents(es_documents)
 
         # Extract images
-        image_files = self.transform_pages_to_render_images()
+        image_files = self.transform_pages_to_render_images(self.file)
 
         # Save images
         self.load_image_files(image_files)

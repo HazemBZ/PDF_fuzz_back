@@ -1,24 +1,22 @@
-from django.views.decorators.csrf import csrf_exempt
+import json
+import logging
 import re
 from pathlib import Path
 
-from django.views.generic import View
-from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.http import JsonResponse
-import json
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
+from fuzz.tasks import process_file
 
-from .settings import MAX_BYTES
+from .constants import COMPLETE, http_status
+from .exceptions import ChunkedUploadError
 from .models import ChunkedUpload
 from .response import Response
-from .constants import http_status, COMPLETE
-from .exceptions import ChunkedUploadError
-
-from fuzz.etl.Orchestrator import ETLOrchestrator
-
-import logging
+from .settings import MAX_BYTES
 
 logger = logging.getLogger(__name__)
 
@@ -302,7 +300,10 @@ class ChunkedUploadCompleteView(ChunkedUploadBaseView):
         instance.file.name = new_path.name
         instance.save()
 
-        ETLOrchestrator.process(new_path)
+        try:
+            process_file.delay(str(new_path))
+        except Exception:
+            logger.exception("Failed to delegate  process_file task")
 
     def is_valid_chunked_upload(self, chunked_upload):
         """
