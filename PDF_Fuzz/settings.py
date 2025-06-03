@@ -202,3 +202,47 @@ LOGGING = {
         "": {"level": "DEBUG", "handlers": ["console", "file"]},
     },  # logs capture and forwarding
 }
+
+
+
+CELERY_LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s [%(name)s:%(funcName)s] :: %(message)s"
+            "%(process)d %(thread)d %(message)s"
+        },
+        "simple": {
+            "format": "%(levelname)s %(asctime)s [%(name)s:%(funcName)s] :: %(message)s"
+        },
+    },
+    "handlers": {
+        # Send all messages to console
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        # level DEBUG and higher
+        "file": {
+            "class": "logging.FileHandler",
+            "level": "INFO",
+            "filename": "logs/celery-general.log",
+            "mode": "w",
+            "formatter": "simple",
+        },
+        "file-detailed": {
+            "class": "logging.FileHandler",
+            "level": "DEBUG",
+            "filename": "logs/celery-detailed.log",
+            "mode": "w",
+            "formatter": "verbose",
+        },
+    },
+    "celery": {"handlers": ["celery"], "level": "DEBUG", "propagate": False},
+    "loggers": {
+        "": {"level": "DEBUG", "handlers": ["console", "file", "file-detailed"]},
+    },
+}
+
