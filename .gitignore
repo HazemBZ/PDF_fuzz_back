@@ -20,3 +20,6 @@ notebooks/*
 
 # migrations
 chunkedUpload/migrations
+
+# sql db
+db.sqlite3
