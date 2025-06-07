@@ -37,7 +37,7 @@ class FileManager:
         return paths
 
     @cm
-    def delete_path_recursively(cls, path, root=True):
+    def delete_path_recursively(cls, path, keep_root=True):
         exclusion_list = [".gitkeep"]
         if path is None:
             print("Empty directory ", path)
@@ -56,5 +56,5 @@ class FileManager:
                 item_path = os.path.join(path, item)
                 cls.delete_path_recursively(item_path, False)
             # Then delete the empty directory
-            if not root:
+            if not keep_root:
                 os.rmdir(path)
