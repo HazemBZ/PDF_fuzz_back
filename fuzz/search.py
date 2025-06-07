@@ -128,5 +128,10 @@ class Search:
         )
         return results
 
-    def search(self, **args):
-        return self.es.search(self.PDF_INDEX, **args)
+    @classmethod
+    def search(cls, **args):
+        return cls.es.search(index=cls.PDF_INDEX, **args)
+    
+    @classmethod
+    def delete(cls, **args):
+        return cls.es.delete_by_query(index=cls.PDF_INDEX, **args)
