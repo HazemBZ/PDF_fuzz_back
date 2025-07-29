@@ -143,7 +143,8 @@ REST_FRAMEWORK = {
     ],
 }
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://localhost"]
+# CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://localhost", "http://*"]
+CORS_ALLOW_ALL_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
