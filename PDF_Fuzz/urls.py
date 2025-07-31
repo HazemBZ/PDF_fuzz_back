@@ -23,5 +23,5 @@ urlpatterns = [
     path("admin/", admin.site.urls), 
     path("api/fuzz/", include("fuzz.urls")),
     path("chunkedUpload/", include("chunkedUpload.urls")),
-    path("healh/", helper_views.health_check, name='health_check')
+    path("health/", helper_views.health_check, name='health_check')
     ]
