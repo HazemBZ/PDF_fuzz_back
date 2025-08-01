@@ -10,7 +10,15 @@ RUN apt-get update && \
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY ./ ./
+COPY ./ /app
+
+COPY --chown=root:root entrypoint.sh setup.sh /
+RUN chmod +x /entrypoint.sh
+
+ARG IS_BACKEND
+ENV IS_BACKEND=$IS_BACKEND
+
+ENTRYPOINT ["/entrypoint.sh"]
 
 EXPOSE 8000
 
