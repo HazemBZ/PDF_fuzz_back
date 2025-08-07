@@ -23,3 +23,6 @@ chunkedUpload/migrations
 
 # sql db
 db.sqlite3
+
+# helpers
+setup-complete
