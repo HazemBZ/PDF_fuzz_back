@@ -22,6 +22,6 @@ from PDF_Fuzz import views as helper_views
 urlpatterns = [
     path("admin/", admin.site.urls), 
     path("api/fuzz/", include("fuzz.urls")),
-    path("chunkedUpload/", include("chunkedUpload.urls")),
+    path("api/chunkedUpload/", include("chunkedUpload.urls")),
     path("health/", helper_views.health_check, name='health_check')
     ]
