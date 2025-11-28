@@ -1,2 +1,36 @@
+[project]
+name = "pdf-fuzz-back"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "celery[redis]>=5.5.3",
+    "django>=5.2.8",
+    "django-cors-headers>=4.9.0",
+    "django-extensions>=4.1",
+    "djangorestframework>=3.16.1",
+    "djangorestframework-jwt>=1.11.0",
+    "djangorestframework-simplejwt>=5.5.1",
+    "elasticsearch==8.14.0",
+    "flake8>=7.3.0",
+    "flower==2.0.1",
+    "jupyterlab>=4.5.0",
+    "pdf2image>=1.17.0",
+    "pillow>=12.0.0",
+    "pymupdf==1.25.5",
+    "pytest>=9.0.1",
+    "pytest-django==4.11.1",
+    "python-magic==0.4.27",
+]
+
+[tool.setuptools]
+py-modules = [
+  'chunkedUpload',
+  'fuzz',
+  'assets',
+  'PDF_Fuzz',
+]
+
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "PDF_Fuzz.settings"

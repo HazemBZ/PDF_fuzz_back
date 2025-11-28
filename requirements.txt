@@ -14,3 +14,4 @@ pymupdf==1.25.5
 celery[redis]
 flower==2.0.1
 pytest-django==4.11.1
+python-magic==0.4.27
