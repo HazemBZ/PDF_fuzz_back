@@ -13,8 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         
         def build_image_name(path, count):
-            print('path ', path)
-            file_location = path.split('assets/')[1]
+            file_location = path
             file_location = f"/{count}_".join(file_location.split('/')).replace('.pdf', '.jpg')
             return f"http://localhost:8000/api/fuzz/image/path/{file_location}"
         
