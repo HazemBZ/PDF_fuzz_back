@@ -1,8 +1,11 @@
 import json
+import os
 import pathlib
 from itertools import groupby
 
-from django.http import FileResponse, JsonResponse
+import magic
+from django.http import FileResponse, HttpResponse, JsonResponse
+from django.views.decorators.clickjacking import xframe_options_exempt
 from PDF_Fuzz.settings import IMAGES_DIR
 
 from fuzz.search import Search
@@ -67,3 +70,18 @@ def get_images_by_keyword(request):
 
 def get_image_from_path(request, image_path):
     return FileResponse(open(pathlib.Path(IMAGES_DIR, image_path), "rb"))
+
+
+@xframe_options_exempt
+def read_file(request, document_name):
+    file_path = FileManager.get_uploaded_files(f"*{document_name}")[0]
+
+    content_type = magic.from_file(file_path, mime=True)
+
+    with open(file_path, "rb") as file:
+        file_data = file.read()
+
+    response = HttpResponse(file_data, content_type=content_type)
+    response["Content-Disposition"] = f"inline;filename={os.path.basename(file_path)}"
+
+    return response
