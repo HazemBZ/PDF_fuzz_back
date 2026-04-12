@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import logging
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -110,6 +111,24 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+
+class IgnoreApiTest:
+    def filter(self, record):
+
+        igonore_list = [
+            "health",
+            "chunkedUpload",
+        ]
+
+        if any([item in record.getMessage() for item in igonore_list]):
+            return False
+        else:
+            return True
+
+
+logging.getLogger("django.server").addFilter(IgnoreApiTest())
+
 
 
 # Internationalization
