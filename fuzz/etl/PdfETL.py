@@ -12,8 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class PdfETL:
-    def __init__(self, file):
+    def __init__(self, file, upload_id):
         self.file = file
+        self.upload_id = upload_id
         self.reader = "SET_READER"
         self.loader = "SET_LOADER"
         self.es_index = "pdf_contents_doc"
@@ -36,6 +37,7 @@ class PdfETL:
         try:
             for i, text in enumerate(pages_text):
                 yield {
+                    "upload_id": self.upload_id,
                     "file_path": filepath.name,
                     "content": text,
                     "page_number": i + 1,

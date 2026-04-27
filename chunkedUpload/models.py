@@ -112,3 +112,37 @@ class ChunkedUpload(AbstractChunkedUpload):
         blank=DEFAULT_MODEL_USER_FIELD_BLANK,
     )
     hash = models.CharField(max_length=32, db_index=True)
+
+
+class FileProcessing(models.Model):
+    """
+    Tracks background processing state for a completed `ChunkedUpload`.
+    Linked one-to-one so each upload has at most one processing record.
+    """
+
+    STATUS_QUEUED = 0
+    STATUS_PROCESSING = 1
+    STATUS_SUCCESS = 2
+    STATUS_FAILED = 3
+
+    STATUS_CHOICES = (
+        (STATUS_QUEUED, "Queued"),
+        (STATUS_PROCESSING, "Processing"),
+        (STATUS_SUCCESS, "Success"),
+        (STATUS_FAILED, "Failed"),
+    )
+
+    upload = models.OneToOneField(
+        ChunkedUpload, on_delete=models.CASCADE, related_name="processing"
+    )
+    task_id = models.CharField(max_length=255, null=True, blank=True, db_index=True)
+    status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=STATUS_QUEUED)
+    progress = models.PositiveSmallIntegerField(default=0)
+    started_on = models.DateTimeField(null=True, blank=True)
+    finished_on = models.DateTimeField(null=True, blank=True)
+    error = models.TextField(null=True, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Processing(upload_id={self.upload.upload_id}, status={self.status}, task_id={self.task_id})"

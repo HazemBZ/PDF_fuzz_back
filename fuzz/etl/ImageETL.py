@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 class ImageETL:
     
-    def __init__(self, file):
+    def __init__(self, file, upload_id):
         self.file = file
         self.reader = "SET_READER"
         self.loader = "SET_LOADER"

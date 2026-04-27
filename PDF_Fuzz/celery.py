@@ -4,13 +4,14 @@ import os
 from celery import Celery
 from celery.signals import setup_logging
 
-# from fuzz.search import Search
-from fuzz.tasks import test_connection
-
 logger = logging.getLogger(__name__)
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PDF_Fuzz.settings")
+
+# Import test helper after DJANGO_SETTINGS_MODULE is set to avoid
+# AppRegistryNotReady errors during module import.
+from fuzz.tasks import test_connection
 
 app = Celery(
     "PDF_Fuzz", backend="redis://redis:6379/0", broker="amqp://guest@rabbitmq//"

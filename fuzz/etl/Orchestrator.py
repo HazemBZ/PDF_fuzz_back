@@ -22,15 +22,17 @@ class ETLOrchestrator:
             Search.connect()
 
     @cm
-    def process(cls, file):
+    def process(cls, file, upload_id):
         cls.startup()
         extension = file.suffix[1:]
+        
+        logger.info(f"Processing file {file} with extension {extension}")
 
         match extension:
             case "pdf":
-                PdfETL(file).execute()
+                PdfETL(file, upload_id).execute()
             case "png" | "jpg":
-                ImageETL(file).execute()
+                ImageETL(file, upload_id).execute()
             case item if item in ["doc", "docx"]:
                 logger.warn(f"No executors yet for {file.name}")
             case _:

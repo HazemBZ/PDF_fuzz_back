@@ -10,19 +10,61 @@ from PDF_Fuzz.settings import IMAGES_DIR
 
 from fuzz.search import Search
 from fuzz.utils.file_utils import FileManager
+from chunkedUpload.models import ChunkedUpload, FileProcessing
+
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 def get_all_file_names(request):
-    pdf_file_names = list(
-        map(
-            lambda x: {"name": x.name, "path": str(x)},
-            FileManager.get_uploaded_files("*.pdf"),
-        )
-    )
-    return JsonResponse(
-        pdf_file_names,
-        safe=False,
-    )
+    pdf_file_names = []
+
+    # Iterate over ChunkedUpload records for PDF files instead of scanning filesystem
+    uploads = ChunkedUpload.objects.filter(realname__iendswith='.pdf')
+
+    for cu in uploads:
+        try:
+            logger.info(f"Checking ChunkedUpload {cu.upload_id} ({cu.filename})")
+            name = cu.realname
+            # .replace('.pdf', '')
+            status_label = 'untracked'
+            progress = None
+
+            try:
+                proc = cu.processing
+                status_label = dict(FileProcessing.STATUS_CHOICES).get(proc.status, 'unknown')
+                progress = proc.progress
+            except FileProcessing.DoesNotExist:
+                logger.info(f"ChunkedUpload {cu.upload_id} has no FileProcessing record")
+                status_label = 'queued_or_not_started'
+
+            # Use the file field path for the filesystem path (may raise if storage doesn't support it)
+            file_path = None
+            try:
+                file_path = cu.file.path
+            except Exception:
+                # Fallback to the storage name/url if .path is not available
+                file_path = str(cu.file.name)
+
+            pdf_file_names.append({
+                'id': cu.upload_id,
+                'name': name,
+                'path': file_path,
+                'status': status_label,
+                'progress': progress,
+            })
+        except Exception:
+            logger.exception(f"Error checking ChunkedUpload {getattr(cu, 'upload_id', '<unknown>')}")
+            pdf_file_names.append({
+                'id': getattr(cu, 'upload_id', None),
+                'name': getattr(cu, 'realname', '').replace('.pdf', ''),
+                'path': getattr(cu.file, 'name', ''),
+                'status': 'unknown',
+                'progress': None,
+            })
+
+    return JsonResponse(pdf_file_names, safe=False)
 
 
 def get_all_images_by_file_name(request, fileName):
@@ -54,14 +96,23 @@ def get_images_by_keyword(request):
     res = Search.get_matching_keyword(keyword)["hits"]["hits"]
 
     formatted = []
+    
+    
+    # TODO: Get upload_id from search result and add to response
 
     for key, items in groupby(res, lambda x: x["_source"]["file_path"]):
         match_group = {}
+        
+        upload_id = None
 
         match_group["file"] = key
         match_group["matchedImages"] = [
-            build_image_name(key, item["_source"]["page_id"]) for item in items
+         
         ]
+        for item in items:
+            match_group["matchedImages"].append(build_image_name(key, item["_source"]["page_id"]))
+            upload_id = item["_source"].get("upload_id")  # Assuming all items in the group have the same upload_id
+        match_group["upload_id"] = upload_id  # Assuming all items in the group have the same upload_id
         match_group["keyword"] = keyword
         formatted.append(match_group)
 

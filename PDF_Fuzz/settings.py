@@ -119,6 +119,7 @@ class IgnoreApiTest:
         igonore_list = [
             "health",
             "chunkedUpload",
+            "api/fuzz/image/path/"
         ]
 
         if any([item in record.getMessage() for item in igonore_list]):

@@ -10,11 +10,12 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+
 from fuzz.tasks import process_file
 
 from .constants import COMPLETE, http_status
 from .exceptions import ChunkedUploadError
-from .models import ChunkedUpload
+from .models import ChunkedUpload, FileProcessing
 from .response import Response
 from .settings import MAX_BYTES
 
@@ -219,15 +220,15 @@ class ChunkedUploadView(ChunkedUploadBaseView):
             chunked_upload.hash = hash
 
         content_range = request.META.get(self.content_range_header, "")
-        logger.info(f"content_range {content_range}")
+        # logger.info(f"content_range {content_range}")
         match = self.content_range_pattern.match(content_range)
         if match:
             start = int(match.group("start"))
             end = int(match.group("end"))
             total = int(match.group("total"))
-            logger.info(
-                f"[CONTENT_RANGE_HEADER]: start; {start}, end; {end}, total; {total}"
-            )
+            # logger.info(
+            #     f"[CONTENT_RANGE_HEADER]: start; {start}, end; {end}, total; {total}"
+            # )
         elif self.fail_if_no_header:
             raise ChunkedUploadError(
                 status=http_status.HTTP_400_BAD_REQUEST,
@@ -235,7 +236,7 @@ class ChunkedUploadView(ChunkedUploadBaseView):
             )
         else:
             # Use the whole size when HTTP_CONTENT_RANGE is not provided
-            logger.info("No match")
+            # logger.info("No match")
             start = 0
             end = chunk.size - 1
             total = chunk.size
@@ -301,7 +302,23 @@ class ChunkedUploadCompleteView(ChunkedUploadBaseView):
         instance.save()
 
         try:
-            process_file.delay(str(new_path))
+            # process_file.delay(str(new_path))
+            async_result = process_file.apply_async(
+                args=[str(new_path), instance.upload_id]
+            )
+            logger.info(
+                f"Queued process_file Celery task id={async_result.id} path={new_path}"
+            )
+            try:
+                FileProcessing.objects.update_or_create(
+                    upload=instance,
+                    defaults={
+                        "task_id": async_result.id,
+                        "status": FileProcessing.STATUS_QUEUED,
+                    },
+                )
+            except Exception:
+                logger.exception("Failed to create/update FileProcessing record")
         except Exception:
             logger.exception("Failed to delegate  process_file task")
 
