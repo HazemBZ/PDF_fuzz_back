@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 
 @shared_task
 def process_file(file, upload_id=None):
-    path = Path(file)
-    logger.info(f"processing file {file} upload_id={upload_id}")
+    path = Path(file).expanduser().resolve()
+    logger.info(f"processing file {path} upload_id={upload_id}")
 
     proc = None
     if upload_id:
@@ -33,6 +33,8 @@ def process_file(file, upload_id=None):
             proc = None
 
     try:
+        if not path.is_file():
+            raise FileNotFoundError(f"ETL input file not found: {path}")
         ETLOrchestrator.process(path, upload_id)
         if proc:
             proc.status = FileProcessing.STATUS_SUCCESS
