@@ -294,15 +294,14 @@ class ChunkedUploadCompleteView(ChunkedUploadBaseView):
         upload_id = request.POST.get("upload_id")
         instance = ChunkedUpload.objects.get(upload_id=upload_id)
         instance.realname = realname
-        instance_path = str(instance.file)
-        path = Path(instance_path)
-        new_path = Path(path.parent, instance.realname)
+        storage_name = Path(instance.file.name)
+        path = Path(instance.file.path)
+        new_path = path.with_name(instance.realname)
         path.rename(new_path)
-        instance.file.name = new_path.name
+        instance.file.name = str(storage_name.with_name(instance.realname))
         instance.save()
 
         try:
-            # process_file.delay(str(new_path))
             async_result = process_file.apply_async(
                 args=[str(new_path), instance.upload_id]
             )
