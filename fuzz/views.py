@@ -8,6 +8,7 @@ from django.http import FileResponse, HttpResponse, JsonResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from PDF_Fuzz.settings import IMAGES_DIR
 
+from fuzz.delete_service import delete_selected, validate_delete_payload
 from fuzz.search import Search
 from fuzz.utils.file_utils import FileManager
 from chunkedUpload.models import ChunkedUpload, FileProcessing
@@ -15,6 +16,28 @@ from chunkedUpload.models import ChunkedUpload, FileProcessing
 from logging import getLogger
 
 logger = getLogger(__name__)
+
+
+def delete_selected_files(request):
+    """Bulk-delete uploaded PDFs by immutable ``upload_id``.
+
+    Delegates payload validation and per-ID lifecycle cleanup to
+    ``delete_service``.
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
+
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON body"}, status=400)
+
+    upload_ids, err = validate_delete_payload(body)
+    if err is not None:
+        return JsonResponse(err, status=400)
+
+    results = delete_selected(upload_ids)
+    return JsonResponse({"results": results})
 
 
 def get_all_file_names(request):
