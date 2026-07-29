@@ -30,3 +30,6 @@ setup-complete
 # skills files
 .agents/*
 skills-lock.json
+
+# agent bookkeeping
+.omo/
